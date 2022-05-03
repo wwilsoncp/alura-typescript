@@ -8,3 +8,4 @@ export function template() {
         return descriptor;
     };
 }
+//# sourceMappingURL=template-decorator.js.map

@@ -26,3 +26,4 @@ export class MensagemView extends View {
         this.update(mensagem);
     }
 }
+//# sourceMappingURL=mensagem-view.js.map

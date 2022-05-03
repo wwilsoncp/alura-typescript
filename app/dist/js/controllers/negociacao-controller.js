@@ -10,6 +10,7 @@ import { logTimeExecution } from "../decorators/logar-tempo-execucao.js";
 import { Negociacao } from "../models/negociacao.js";
 import { Negociacoes } from "../models/negociacoes.js";
 import { NegociacoesService } from "../services/negociacoes-service.js";
+import { imprimir } from "../utils/imprimir.js";
 import { MensagemView } from "../views/mensagem-view.js";
 import { NegociacoesView } from "../views/negociacoes-view.js";
 export class NegociacaoController {
@@ -26,13 +27,27 @@ export class NegociacaoController {
             this.mensagemView.updateError("Apenas negociações em dias úteis são aceitas.");
             return;
         }
+        if (this.negociacoes
+            .listar()
+            .some((negociacaoLista) => negociacaoLista.ehIgual(negociacao))) {
+            this.mensagemView.updateError("Já existe uma negociação cadastrada para esta Data");
+            return;
+        }
         this.negociacoes.adicionar(negociacao);
+        imprimir(negociacao, this.negociacoes);
         this.limparFormulario();
         this.updateView();
     }
     importarDados() {
         this.negociacoesService
             .obterNegociacoes()
+            .then((negociacoes) => {
+            return negociacoes.filter((negociacaoTemp) => {
+                return !this.negociacoes
+                    .listar()
+                    .some((negociacaoLista) => negociacaoLista.ehIgual(negociacaoTemp));
+            });
+        })
             .then((negociacoes) => {
             for (let negociacao of negociacoes) {
                 this.negociacoes.adicionar(negociacao);
@@ -68,3 +83,4 @@ __decorate([
     inspectMethod(),
     logTimeExecution()
 ], NegociacaoController.prototype, "adiciona", null);
+//# sourceMappingURL=negociacao-controller.js.map

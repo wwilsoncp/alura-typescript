@@ -4,6 +4,7 @@ import { logTimeExecution } from "../decorators/logar-tempo-execucao.js";
 import { Negociacao } from "../models/negociacao.js";
 import { Negociacoes } from "../models/negociacoes.js";
 import { NegociacoesService } from "../services/negociacoes-service.js";
+import { imprimir } from "../utils/imprimir.js";
 import { MensagemView } from "../views/mensagem-view.js";
 import { NegociacoesView } from "../views/negociacoes-view.js";
 
@@ -36,13 +37,27 @@ export class NegociacaoController {
       this.inputQuantidade.value,
       this.inputValor.value
     );
+
     if (!negociacao.ehDiaUtil()) {
       this.mensagemView.updateError(
         "Apenas negociações em dias úteis são aceitas."
       );
       return;
     }
+    if (
+      this.negociacoes
+        .listar()
+        .some((negociacaoLista) => negociacaoLista.ehIgual(negociacao))
+    ) {
+      this.mensagemView.updateError(
+        "Já existe uma negociação cadastrada para esta Data"
+      );
+      return;
+    }
     this.negociacoes.adicionar(negociacao);
+
+    imprimir(negociacao, this.negociacoes);
+
     this.limparFormulario();
     this.updateView();
   }
@@ -50,6 +65,15 @@ export class NegociacaoController {
   public importarDados(): void {
     this.negociacoesService
       .obterNegociacoes()
+      .then((negociacoes: Negociacao[]) => {
+        return negociacoes.filter((negociacaoTemp: Negociacao) => {
+          // ! (negando) para não retornar
+          return !this.negociacoes
+            .listar()
+            // se contém na lista
+            .some((negociacaoLista) => negociacaoLista.ehIgual(negociacaoTemp));
+        });
+      })
       .then((negociacoes: Negociacao[]) => {
         for (let negociacao of negociacoes) {
           this.negociacoes.adicionar(negociacao);
