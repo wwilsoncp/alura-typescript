@@ -1,6 +1,3 @@
-import { inspectMethod } from "../decorators/inspect.js";
-import { logTimeExecution } from "../decorators/logar-tempo-execucao.js";
-
 export abstract class View<T> {
   //
   protected element: HTMLElement;
@@ -16,8 +13,8 @@ export abstract class View<T> {
 
   protected abstract template(model: T): string;
 
-  @logTimeExecution(true)
-  @inspectMethod()
+  // @logTimeExecution(true)
+  // @inspectMethod()
   public update(model: T): void {
     let template = this.template(model);
     this.element.innerHTML = template;
